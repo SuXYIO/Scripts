@@ -1,10 +1,9 @@
 -- Get weather
 function getw()
 	local api_url = "http://api.openweathermap.org/data/2.5/weather?"
-	local info = require('weather_api')
-	local api_key = info.api_key
-	local lat = info.lat
-	local lon = info.lon
+	local api_key = 'your API key'
+	local lat = 'your lat'
+	local lon = 'your lon'
 
 	local command = string.format("curl -s '%s&lat=%s&lon=%s&APPID=%s'", api_url, lat, lon, api_key)
 	local handle = io.popen(command)
