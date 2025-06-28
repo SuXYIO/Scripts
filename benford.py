@@ -70,7 +70,7 @@ def visualizeDistrib(distrib: list[float], num_sys: int = 10) -> None:
         marker="x",
     )
     plt.xlabel("First Digit")
-    plt.ylabel("Frequency")
+    plt.ylabel("Probability")
     plt.title("First Digit Distribution")
     plt.legend()
     plt.show()
