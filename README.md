@@ -14,15 +14,7 @@ A pretty useful tool for `web CTF`s (or at least I thought so). Not comparable w
 
 Deps: `requests`, `tqdm`
 
-### drawFunction
-
-A slow tool for drawing 2D mathmatical function plots.  
-Written using the `turtle` lib, so it's very _SLOW_.  
-Written because I got bored.
-
-Deps: None
-
-### LuaWeather
+### weather.lua
 
 Get the weather from `OpenWeatherAPI` (requires API key).  
 Was formally made to integrate into `NeoVim`, but I failed.
@@ -44,13 +36,14 @@ Yeah, I made it because I keep forgetting commands. And I've been without `Bette
 
 Deps: `Bettercap`
 
-### Benford
-
-A script to check and plots the first digit distro for a CSV data's numbers.  
-use `python3 benford.py -h` for help
-
 ### githost
 
 A oneline script to change `/etc/hosts` from [tinsfox github hosts](https://github-hosts.tinsfox.com/) source.  
 Better used with `crontab` to set it as a routine.  
 Really thankful to tinsfox authors!
+
+### mylearn
+
+Sometimes I see cool stuff online, and I try to write it myself, quick demos without much practical use.  
+I'll put some here, the microprojects that is not very embarrassing to show.  
+Also the projects before 25.10.03 is probably lost, except for `benford` and `drawFunction`.
