@@ -1,11 +1,18 @@
 from matplotlib import pyplot as plt
-import random
+from typing import Optional, Callable
+from random import random
+
+
+class ksys:
+    def __init__(self, initialStat: float, errorFunc: Callable[[], float]):
+        self.initialStat = initialStat
+        self.errorFunc = errorFunc
 
 
 class generalSystem:
-    def __init__(self, initialStat: float, errorFunc):
-        self.status = initialStat
-        self.errorFunc = errorFunc
+    def __init__(self, k: ksys):
+        self.status = k.initialStat
+        self.errorFunc = k.errorFunc
 
     def control(self, force: float):
         self.status += force + self.errorFunc()
@@ -14,19 +21,63 @@ class generalSystem:
         return self.status
 
 
+class kpid:
+    def __init__(self, kp, ki, kd):
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
+
+    def __iter__(self):
+        return (self.kp, self.ki, self.kd).__iter__()
+
+
+class ctrllog:
+    def __init__(self, expected):
+        self._loglist = []
+        self.expected = expected
+
+    def append(self, stat: float, err: float, force: float):
+        self._loglist.append({"stat": stat, "err": err, "force": force})
+
+    def __len__(self) -> int:
+        return len(self._loglist)
+
+    def __iter__(self):
+        for elem in self._loglist:
+            yield elem
+
+    def to_dict(self) -> dict[str, list[float]]:
+        d = {}
+        for item in self._loglist:
+            for key, value in item.items():
+                if key not in d:
+                    d[key] = []
+                d[key].append(value)
+        return d
+
+    def plot(self, keys: list[str] = ["stat", "expected"]):
+        d = self.to_dict()
+        if "expected" in keys:
+            plt.plot([self.expected] * len(self), label="expected")
+            keys = [k for k in keys if k != "expected"]
+        for key, value in d.items():
+            if key in keys:
+                plt.plot(value, label=key)
+        plt.show()
+
+
 def pidController(
     system: generalSystem,
     expected: float,
     acceptableError: float,
-    kp: float,
-    ki: float,
-    kd: float,
-) -> dict[str, list[float]]:
+    k: kpid,
+) -> ctrllog:
     def error(system: generalSystem, expected):
         return expected - system.getStatus()
 
+    kp, ki, kd = tuple(k)
     vp, vi, vd, lastvp = 0, 0, 0, 0
-    log = {"vp": [], "vi": [], "vd": [], "stat": [], "err": [], "force": []}
+    log = ctrllog(expected)
 
     while abs(err := error(system, expected)) >= acceptableError:
         # calc
@@ -41,37 +92,27 @@ def pidController(
         system.control(force)
 
         # log
-        log["vp"].append(vp)
-        log["vi"].append(vi)
-        log["vd"].append(vd)
-        log["stat"].append(oldstat)
-        log["err"].append(err)
-        log["force"].append(force)
+        log.append(oldstat, err, force)
 
     return log
 
 
+def crit(log: ctrllog) -> float:
+    # smaller is better
+    return len(log)
+
+
+def trainPid(epochs: int, initial: Optional[kpid] = None) -> kpid:
+    ktrained = initial if initial is not None else kpid(random(), random(), random())
+
+    for _ in range(epochs):
+        pass
+    return ktrained
+
+
 if __name__ == "__main__":
-    expected = 20
-    system1 = generalSystem(0, lambda: -10)
-    log1 = pidController(system1, expected, 0.01, 0.4, 0.05, 0.1)
-    system2 = generalSystem(0, lambda: -10)
-    log2 = pidController(system2, expected, 0.01, 0.25, 0.05, 0.1)
+    expected = 40
 
-    fig = plt.figure()
-    show = "stat"
-    ax1 = plt.subplot(121)
-    loglen = len(log1["stat"])
-    ax1.plot([expected] * loglen, label="expected")
-    for label, value in log1.items():
-        if label in show:
-            ax1.plot(value, label=label)
-    ax2 = plt.subplot(122)
-    loglen = len(log2["stat"])
-    ax2.plot([expected] * loglen, label="expected")
-    for label, value in log2.items():
-        if label in show:
-            ax2.plot(value, label=label)
-
-    plt.legend()
-    plt.show()
+    system = generalSystem(ksys(0, lambda: -10 + random() * 0.1))
+    log = pidController(system, expected, 0.01, kpid(0.4, 0.2, 0.1))
+    log.plot()
